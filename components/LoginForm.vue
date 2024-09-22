@@ -58,7 +58,7 @@ import type { GenericObject } from 'vee-validate'
 import * as yup from 'yup'
 import { useSupabaseClient } from '#imports'
 
-defineEmits(['toggleForm'])
+const emit = defineEmits(['toggleForm', 'login-success'])
 
 const isLoading = ref(false)
 const message = ref('')
@@ -106,6 +106,7 @@ const handleSubmit = async (values: GenericObject, { resetForm }: { resetForm: (
       messageType.value = 'success'
       message.value = 'Sign in successful!'
       resetForm()
+      emit('login-success') // Emit the login-success event
     } else {
       throw new Error('User data is undefined after sign in')
     }

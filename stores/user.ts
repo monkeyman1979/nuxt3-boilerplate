@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { User } from '@supabase/supabase-js'
+import type { User } from '@supabase/supabase-js'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -12,8 +12,12 @@ export const useUserStore = defineStore('user', {
     clearUser() {
       this.user = null
     },
+    logout() {
+      // TODO: Implement actual logout logic (e.g., clear token from localStorage, call API)
+      this.clearUser()
+    },
   },
   getters: {
-    isLoggedIn: (state) => !!state.user,
+    isAuthenticated: (state) => !!state.user,
   },
 })
