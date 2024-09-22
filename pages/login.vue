@@ -1,6 +1,9 @@
 <template>
   <div class="flex items-center justify-center min-h-screen bg-gray-100">
     <div class="w-full max-w-md">
+      <div v-if="error" class="mb-4 p-4 bg-red-100 text-red-700 rounded">
+        {{ error }}
+      </div>
       <LoginForm v-if="showLogin" @toggle-form="toggleForm" @login-success="onAuthSuccess" />
       <AccountCreationForm v-else @toggle-form="toggleForm" @signup-success="onAuthSuccess" />
     </div>
@@ -18,6 +21,7 @@ const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 const showLogin = ref(true)
+const error = ref('')
 
 const updateFormBasedOnRoute = () => {
   const mode = route.query.mode
@@ -30,10 +34,13 @@ const updateFormBasedOnRoute = () => {
 
 onMounted(() => {
   updateFormBasedOnRoute()
-  if (userStore.isAuthenticated) {
+})
+
+watch(() => userStore.isAuthenticated, (isAuthenticated) => {
+  if (isAuthenticated && userStore.fetchAttempted) {
     router.push('/dashboard')
   }
-})
+}, { immediate: true })
 
 watch(() => route.query.mode, () => {
   updateFormBasedOnRoute()
@@ -41,9 +48,19 @@ watch(() => route.query.mode, () => {
 
 const toggleForm = () => {
   showLogin.value = !showLogin.value
+  error.value = '' // Clear any existing errors when toggling forms
 }
 
 const onAuthSuccess = () => {
-  router.push('/dashboard')
+  userStore.fetchUser() // Refresh user data after successful login/signup
 }
+
+// Handle authentication errors
+watch(() => userStore.user, (user) => {
+  if (user === null && userStore.fetchAttempted) {
+    error.value = 'Authentication failed. Please try again.'
+  } else {
+    error.value = ''
+  }
+})
 </script>

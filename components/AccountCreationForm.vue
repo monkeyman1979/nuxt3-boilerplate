@@ -80,13 +80,6 @@ const handleSubmit = async (values: GenericObject, { resetForm }: { resetForm: (
   const email = values.email as string
   const password = values.password as string
 
-  if (!email || !password) {
-    console.error('Email or password is missing')
-    message.value = 'Error: Email and password are required.'
-    messageType.value = 'error'
-    return
-  }
-
   isLoading.value = true
   message.value = ''
   try {
@@ -101,19 +94,24 @@ const handleSubmit = async (values: GenericObject, { resetForm }: { resetForm: (
     }
 
     if (data.user) {
-      console.log('Sign up successful. User data:', data.user)
-      userStore.setUser(data.user)
+      console.log('Sign up successful.')
       messageType.value = 'success'
-      message.value = 'Sign up successful! Please check your email for verification.'
+      message.value = 'Sign up successful! Please check your email for verification instructions.'
       resetForm()
-      emit('signup-success') // Emit the signup-success event
+      emit('signup-success')
     } else {
       throw new Error('User data is undefined after sign up')
     }
   } catch (error: any) {
     console.error('Error in handleSubmit:', error)
     messageType.value = 'error'
-    message.value = `Error: ${error.message || 'An unexpected error occurred'}`
+    if (error.message.includes('User already registered')) {
+      message.value = 'This email is already registered. Please try logging in instead.'
+    } else if (error.message.includes('Password should be at least 6 characters')) {
+      message.value = 'Password should be at least 6 characters long.'
+    } else {
+      message.value = `Error: ${error.message || 'An unexpected error occurred'}`
+    }
   } finally {
     isLoading.value = false
   }
