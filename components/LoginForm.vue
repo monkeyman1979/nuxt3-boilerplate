@@ -1,8 +1,8 @@
 <template>
   <Card class="w-[350px]">
     <CardHeader>
-      <CardTitle>Create an Account</CardTitle>
-      <CardDescription>Sign up for a new account</CardDescription>
+      <CardTitle>Login</CardTitle>
+      <CardDescription>Sign in to your account</CardDescription>
     </CardHeader>
     <CardContent>
       <Form :validation-schema="schema" v-slot="{ errors }" @submit="handleSubmit">
@@ -33,14 +33,14 @@
           </FormItem>
         </FormField>
         <Button type="submit" class="w-full mt-4" :disabled="isLoading">
-          {{ isLoading ? 'Signing up...' : 'Sign Up' }}
+          {{ isLoading ? 'Logging in...' : 'Login' }}
         </Button>
       </Form>
       <div v-if="message" :class="['mt-4 p-2 rounded', messageClass]">
         {{ message }}
       </div>
       <div class="mt-4 text-center">
-        <a href="#" @click.prevent="$emit('toggleForm')" class="text-blue-600 hover:underline">Have an account? Login</a>
+        <a href="#" @click.prevent="$emit('toggleForm')" class="text-blue-600 hover:underline">Don't have an account? Sign up</a>
       </div>
     </CardContent>
   </Card>
@@ -58,7 +58,7 @@ import type { GenericObject } from 'vee-validate'
 import * as yup from 'yup'
 import { useSupabaseClient } from '#imports'
 
-const emit = defineEmits(['toggleForm', 'signup-success'])
+const emit = defineEmits(['toggleForm', 'login-success'])
 
 const isLoading = ref(false)
 const message = ref('')
@@ -73,7 +73,7 @@ const messageClass = computed(() => {
 
 const schema = yup.object({
   email: yup.string().required('Email is required').email('Invalid email format'),
-  password: yup.string().required('Password is required').min(8, 'Password must be at least 8 characters'),
+  password: yup.string().required('Password is required'),
 })
 
 const handleSubmit = async (values: GenericObject, { resetForm }: { resetForm: () => void }) => {
@@ -83,8 +83,8 @@ const handleSubmit = async (values: GenericObject, { resetForm }: { resetForm: (
   isLoading.value = true
   message.value = ''
   try {
-    console.log('Attempting to sign up with email:', email)
-    const { data, error } = await supabase.auth.signUp({
+    console.log('Attempting to sign in with email:', email)
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
@@ -94,21 +94,19 @@ const handleSubmit = async (values: GenericObject, { resetForm }: { resetForm: (
     }
 
     if (data.user) {
-      console.log('Sign up successful.')
+      console.log('Sign in successful.')
       messageType.value = 'success'
-      message.value = 'Sign up successful! Please check your email for verification instructions.'
+      message.value = 'Sign in successful! Redirecting to dashboard...'
       resetForm()
-      emit('signup-success')
+      emit('login-success')
     } else {
-      throw new Error('User data is undefined after sign up')
+      throw new Error('User data is undefined after sign in')
     }
   } catch (error: any) {
     console.error('Error in handleSubmit:', error)
     messageType.value = 'error'
-    if (error.message.includes('User already registered')) {
-      message.value = 'This email is already registered. Please try logging in instead.'
-    } else if (error.message.includes('Password should be at least 6 characters')) {
-      message.value = 'Password should be at least 6 characters long.'
+    if (error.message === 'Invalid login credentials') {
+      message.value = 'Invalid email or password. Please try again.'
     } else {
       message.value = `Error: ${error.message || 'An unexpected error occurred'}`
     }
