@@ -59,6 +59,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Form } from 'vee-validate'
+import type { SubmissionHandler } from 'vee-validate'
 import * as yup from 'yup'
 import { useSupabaseClient, useRouter, useRoute } from '#imports'
 
@@ -77,6 +78,11 @@ const messageClass = computed(() => {
   return messageType.value === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
 })
 
+interface ResetPasswordForm {
+  password: string;
+  confirmPassword: string;
+}
+
 const schema = yup.object({
   password: yup.string().required('New password is required').min(8, 'Password must be at least 8 characters'),
   confirmPassword: yup.string().oneOf([yup.ref('password')], 'Passwords must match').required('Please confirm your password'),
@@ -92,7 +98,7 @@ onMounted(async () => {
     resetToken.value = token
 
     // Verify the reset token
-    const { error } = await supabase.auth.verifyOtp({ token, type: 'recovery' })
+    const { error } = await supabase.auth.verifyOtp({ token, type: 'recovery', email: '' })
     if (error) throw error
 
     isValidResetState.value = true
@@ -104,17 +110,14 @@ onMounted(async () => {
   }
 })
 
-const handleResetPassword = async (values: { password: string }) => {
+const handleResetPassword: SubmissionHandler = async (values) => {
   isLoading.value = true
   message.value = ''
 
   try {
+    const { password } = values as ResetPasswordForm
     const { error } = await supabase.auth.updateUser({ 
-      password: values.password
-    }, {
-      headers: {
-        Authorization: `Bearer ${resetToken.value}`
-      }
+      password: password
     })
 
     if (error) throw error

@@ -39,6 +39,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Form } from 'vee-validate'
+import type { SubmissionHandler } from 'vee-validate'
 import * as yup from 'yup'
 
 const supabase = useSupabaseClient()
@@ -56,11 +57,11 @@ const schema = yup.object({
   email: yup.string().required('Email is required').email('Invalid email format'),
 })
 
-const handleSubmit = async (values: { email: string }) => {
+const handleSubmit: SubmissionHandler = async (values) => {
   isLoading.value = true
   message.value = ''
   try {
-    const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(values.email as string, {
       redirectTo: `${config.public.supabaseUrl}/auth/v1/verify?redirect_to=${window.location.origin}/reset-password`,
     })
     if (error) throw error

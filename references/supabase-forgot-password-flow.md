@@ -74,8 +74,7 @@ try {
 
 ### 8. Completion
 
-- After successful password reset, either:
-  - Automatically log the user in, or
+- After successful password reset,
   - Redirect to the login page with a success message
 
 ## Implementation Steps
@@ -94,3 +93,31 @@ try {
 - Follow best practices for password strength and storage
 
 Remember to consult the official Supabase documentation for the most up-to-date API methods and best practices.
+
+## Suggestions
+When using Nuxt.js with Supabase for authentication, it's important to handle the redirect after a user resets their password properly. If the email reset password link is redirecting the user to the home page and they are authenticated, it may be due to the way the routing and authentication state are managed.
+
+### Recommendations
+Redirect to a Specific Page: After the user resets their password, ensure that you redirect them to a specific page that does not include any route prefetching. This is to avoid any issues with the access and refresh tokens not being set properly.
+
+#### Check Authentication State: 
+Make sure to check the authentication state before rendering the home page. You can do this by using the Supabase client to verify if the user is authenticated and then conditionally render the appropriate content.
+
+#### Use Middleware: 
+You can create a middleware in Nuxt.js to check if the user is authenticated before allowing access to certain pages. This can help manage the flow of authenticated and unauthenticated users.
+
+## Example Middleware
+Here’s a simple example of how you might set up middleware to check authentication:
+
+1// middleware/auth.js
+2export default function ({ store, redirect }) {
+3  const user = store.state.auth.user; // Assuming you have a Pinia store for auth
+4  if (!user) {
+5    return redirect('/login'); // Redirect to login if not authenticated
+6  }
+7}
+
+## Handling the Reset Link
+When the user clicks the reset password link in their email, ensure that the link directs them to a page where they can enter their new password. After successfully resetting their password, you can redirect them to a specific page (like a login page) instead of the home page.
+
+By following these recommendations, you should be able to manage the authentication flow more effectively and prevent users from being redirected to the home page when they should not be authenticated.
