@@ -6,10 +6,7 @@
         <CardDescription>Enter your new password</CardDescription>
       </CardHeader>
       <CardContent>
-        <div v-if="isCheckingToken" class="text-center">
-          <p>Verifying reset token...</p>
-        </div>
-        <Form v-else-if="isValidResetState" :validation-schema="schema" v-slot="{ errors }" @submit="handleResetPassword">
+        <Form v-if="hasResetToken" :validation-schema="schema" v-slot="{ errors }" @submit="handleResetPassword">
           <FormField name="password" v-slot="{ field }">
             <FormItem class="mb-4">
               <FormLabel>New Password</FormLabel>
@@ -18,6 +15,7 @@
                   v-bind="field"
                   type="password"
                   placeholder="Enter your new password"
+                  autocomplete="new-password"
                 />
               </FormControl>
               <FormMessage>{{ errors.password }}</FormMessage>
@@ -31,6 +29,7 @@
                   v-bind="field"
                   type="password"
                   placeholder="Confirm your new password"
+                  autocomplete="new-password"
                 />
               </FormControl>
               <FormMessage>{{ errors.confirmPassword }}</FormMessage>
@@ -41,7 +40,7 @@
           </Button>
         </Form>
         <div v-else class="text-center">
-          <p class="text-red-600">{{ errorMessage }}</p>
+          <p class="text-red-600">No reset token provided. Please request a new password reset.</p>
           <Button @click="goToForgotPassword" class="mt-4">Request New Password Reset</Button>
           <Button @click="goToLogin" class="mt-2">Go to Login</Button>
         </div>
@@ -54,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -65,16 +64,14 @@ import * as yup from 'yup'
 import { useSupabaseClient, useRouter, useRoute } from '#imports'
 
 const isLoading = ref(false)
-const isCheckingToken = ref(true)
-const isValidResetState = ref(false)
 const message = ref('')
 const messageType = ref('')
-const resetToken = ref('')
-const errorMessage = ref('')
 
 const supabase = useSupabaseClient()
 const router = useRouter()
 const route = useRoute()
+
+const hasResetToken = computed(() => !!route.query.code)
 
 const messageClass = computed(() => {
   return messageType.value === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -90,54 +87,29 @@ const schema = yup.object({
   confirmPassword: yup.string().oneOf([yup.ref('password')], 'Passwords must match').required('Please confirm your password'),
 })
 
-onMounted(async () => {
-  try {
-    const token = route.query.token as string
-    if (!token) {
-      setErrorState('No reset token provided. Please request a new password reset.')
-      return
-    }
-    resetToken.value = token
-
-    const { error } = await supabase.auth.verifyOtp({ token, type: 'recovery', email: '' })
-    if (error) {
-      if (error.message === 'No active session') {
-        setErrorState('Invalid or expired reset token. Please request a new password reset.')
-      } else {
-        throw error
-      }
-    } else {
-      isValidResetState.value = true
-    }
-  } catch (error: any) {
-    setErrorState(`Error: ${error.message || 'An unexpected error occurred'}`)
-  } finally {
-    isCheckingToken.value = false
-  }
-})
-
-const setErrorState = (message: string) => {
-  errorMessage.value = message
-  isValidResetState.value = false
-}
-
 const handleResetPassword: SubmissionHandler = async (values) => {
   isLoading.value = true
   message.value = ''
 
   try {
     const { password } = values as ResetPasswordForm
-    const { error } = await supabase.auth.updateUser({ password })
+    console.log('Resetting password...')
+    
+    const { error } = await supabase.auth.updateUser({ 
+      password: password,
+    })
 
     if (error) throw error
 
-    message.value = 'Password reset successful. Redirecting to login page...'
+    console.log('Password reset successful')
+    message.value = 'Password reset successful. You can now log in with your new password.'
     messageType.value = 'success'
 
     setTimeout(() => {
       router.push('/login')
     }, 3000)
   } catch (error: any) {
+    console.error('Error resetting password:', error)
     message.value = `Error: ${error.message || 'An unexpected error occurred'}`
     messageType.value = 'error'
   } finally {
