@@ -11,7 +11,7 @@ This document outlines the typical forgot password flow when using Supabase with
 5. User lands on reset password page
 6. User enters new password
 7. Application updates password via Supabase
-8. User is redirected to login or automatically authenticated
+8. User is redirected to login
 
 ## Detailed Flow
 
