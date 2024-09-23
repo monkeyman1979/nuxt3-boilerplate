@@ -41,8 +41,9 @@
           </Button>
         </Form>
         <div v-else class="text-center">
-          <p class="text-red-600">Invalid or expired reset token. Please request a new password reset.</p>
-          <Button @click="goToLogin" class="mt-4">Go to Login</Button>
+          <p class="text-red-600">{{ errorMessage }}</p>
+          <Button @click="goToForgotPassword" class="mt-4">Request New Password Reset</Button>
+          <Button @click="goToLogin" class="mt-2">Go to Login</Button>
         </div>
         <div v-if="message" :class="['mt-4 p-2 rounded', messageClass]">
           {{ message }}
@@ -69,6 +70,7 @@ const isValidResetState = ref(false)
 const message = ref('')
 const messageType = ref('')
 const resetToken = ref('')
+const errorMessage = ref('')
 
 const supabase = useSupabaseClient()
 const router = useRouter()
@@ -90,25 +92,34 @@ const schema = yup.object({
 
 onMounted(async () => {
   try {
-    // Extract the reset token from the URL
     const token = route.query.token as string
     if (!token) {
-      throw new Error('No reset token provided')
+      setErrorState('No reset token provided. Please request a new password reset.')
+      return
     }
     resetToken.value = token
 
-    // Verify the reset token
     const { error } = await supabase.auth.verifyOtp({ token, type: 'recovery', email: '' })
-    if (error) throw error
-
-    isValidResetState.value = true
-  } catch (error) {
-    console.error('Error verifying reset token:', error)
-    isValidResetState.value = false
+    if (error) {
+      if (error.message === 'No active session') {
+        setErrorState('Invalid or expired reset token. Please request a new password reset.')
+      } else {
+        throw error
+      }
+    } else {
+      isValidResetState.value = true
+    }
+  } catch (error: any) {
+    setErrorState(`Error: ${error.message || 'An unexpected error occurred'}`)
   } finally {
     isCheckingToken.value = false
   }
 })
+
+const setErrorState = (message: string) => {
+  errorMessage.value = message
+  isValidResetState.value = false
+}
 
 const handleResetPassword: SubmissionHandler = async (values) => {
   isLoading.value = true
@@ -116,9 +127,7 @@ const handleResetPassword: SubmissionHandler = async (values) => {
 
   try {
     const { password } = values as ResetPasswordForm
-    const { error } = await supabase.auth.updateUser({ 
-      password: password
-    })
+    const { error } = await supabase.auth.updateUser({ password })
 
     if (error) throw error
 
@@ -129,7 +138,6 @@ const handleResetPassword: SubmissionHandler = async (values) => {
       router.push('/login')
     }, 3000)
   } catch (error: any) {
-    console.error('Error in handleResetPassword:', error)
     message.value = `Error: ${error.message || 'An unexpected error occurred'}`
     messageType.value = 'error'
   } finally {
@@ -139,5 +147,9 @@ const handleResetPassword: SubmissionHandler = async (values) => {
 
 const goToLogin = () => {
   router.push('/login')
+}
+
+const goToForgotPassword = () => {
+  router.push('/forgot-password')
 }
 </script>
