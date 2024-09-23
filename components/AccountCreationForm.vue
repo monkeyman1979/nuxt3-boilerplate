@@ -7,7 +7,7 @@
     <CardContent>
       <Form :validation-schema="schema" v-slot="{ errors }" @submit="handleSubmit">
         <FormField name="email" v-slot="{ field }">
-          <FormItem>
+          <FormItem class="mb-4">
             <FormLabel>Email</FormLabel>
             <FormControl>
               <Input
@@ -20,7 +20,7 @@
           </FormItem>
         </FormField>
         <FormField name="password" v-slot="{ field }">
-          <FormItem>
+          <FormItem class="mb-4">
             <FormLabel>Password</FormLabel>
             <FormControl>
               <Input
@@ -29,18 +29,19 @@
                 placeholder="Enter your password"
               />
             </FormControl>
+            <p class="text-sm text-gray-500 mt-1">8 character minimum</p>
             <FormMessage>{{ errors.password }}</FormMessage>
           </FormItem>
         </FormField>
         <Button type="submit" class="w-full mt-4" :disabled="isLoading">
-          {{ isLoading ? 'Signing up...' : 'Sign Up' }}
+          {{ isLoading ? 'Signing up...' : 'Create an account' }}
         </Button>
       </Form>
       <div v-if="message" :class="['mt-4 p-2 rounded', messageClass]">
         {{ message }}
       </div>
       <div class="mt-4 text-center">
-        <a href="#" @click.prevent="$emit('toggleForm')" class="text-blue-600 hover:underline">Have an account? Login</a>
+        Have an account? <a @click.prevent="$emit('toggleForm')" class="text-blue-600 hover:underline cursor-pointer">Login</a>
       </div>
     </CardContent>
   </Card>

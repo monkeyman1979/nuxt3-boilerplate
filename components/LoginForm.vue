@@ -7,7 +7,7 @@
     <CardContent>
       <Form :validation-schema="schema" v-slot="{ errors }" @submit="handleSubmit">
         <FormField name="email" v-slot="{ field }">
-          <FormItem>
+          <FormItem class="mb-4">
             <FormLabel>Email</FormLabel>
             <FormControl>
               <Input
@@ -20,8 +20,13 @@
           </FormItem>
         </FormField>
         <FormField name="password" v-slot="{ field }">
-          <FormItem>
-            <FormLabel>Password</FormLabel>
+          <FormItem class="mb-4">
+            <div class="flex justify-between items-center">
+              <FormLabel>Password</FormLabel>
+              <NuxtLink to="/forgot-password" class="text-sm text-blue-600 hover:underline">
+                Forgot your password?
+              </NuxtLink>
+            </div>
             <FormControl>
               <Input
                 v-bind="field"
@@ -40,7 +45,7 @@
         {{ message }}
       </div>
       <div class="mt-4 text-center">
-        <a href="#" @click.prevent="$emit('toggleForm')" class="text-blue-600 hover:underline">Don't have an account? Sign up</a>
+        Don't have an account? <a @click.prevent="$emit('toggleForm')" class="text-blue-600 hover:underline cursor-pointer">Sign up</a>
       </div>
     </CardContent>
   </Card>
