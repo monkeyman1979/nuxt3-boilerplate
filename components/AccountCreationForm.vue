@@ -5,9 +5,9 @@
       <CardDescription>Sign up for a new account</CardDescription>
     </CardHeader>
     <CardContent>
-      <Form :validation-schema="schema" v-slot="{ errors }" @submit="handleSubmit">
+      <Form :validation-schema="schema" v-slot="{ errors }" @submit="handleSubmit" class="grid gap-4">
         <FormField name="email" v-slot="{ field }">
-          <FormItem class="mb-4">
+          <FormItem>
             <FormLabel>Email</FormLabel>
             <FormControl>
               <Input
@@ -20,7 +20,7 @@
           </FormItem>
         </FormField>
         <FormField name="password" v-slot="{ field }">
-          <FormItem class="mb-4">
+          <FormItem>
             <FormLabel>Password</FormLabel>
             <FormControl>
               <Input
