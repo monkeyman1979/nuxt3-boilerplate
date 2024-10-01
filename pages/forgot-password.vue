@@ -6,9 +6,6 @@
         <CardDescription>Enter your email to reset your password</CardDescription>
       </CardHeader>
       <CardContent>
-        <div class="mb-4 p-4 rounded bg-yellow-100 text-yellow-800">
-          Warning: You are about to reset your password. This action cannot be undone.
-        </div>
         <Form :validation-schema="schema" @submit="handleSubmit">
           <FormField name="email" v-slot="{ field, errors }">
             <FormItem>
