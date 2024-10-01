@@ -1,6 +1,6 @@
 # Nuxt 3 Boilerplate
 
-This is a Nuxt 3 boilerplate project with Tailwind CSS, shadcn-vue, Supabase, Stripe, Pinia, and VueUse integration.
+This is a Nuxt 3 boilerplate project with Tailwind CSS, shadcn-vue, Supabase, Stripe, Pinia, and VueUse integration. It features a unified authentication screen offering both passkey and magic link options.
 
 ## Features
 
@@ -12,6 +12,7 @@ This is a Nuxt 3 boilerplate project with Tailwind CSS, shadcn-vue, Supabase, St
 - [Stripe](https://stripe.com/)
 - [Pinia](https://pinia.vuejs.org/)
 - [VueUse](https://vueuse.org/)
+- Unified Authentication (Passkey and Magic Link)
 
 ## Prerequisites
 
@@ -33,27 +34,21 @@ This is a Nuxt 3 boilerplate project with Tailwind CSS, shadcn-vue, Supabase, St
    npm install
    ```
 
-3. ## Environment Setup
+3. **Environment Setup**
 
-This project uses environment variables for configuration. Follow these steps to set up your environment:
-
-Copy the `.env.example` file to create your own `.env` file:
+   Copy the `.env.example` file to `.env`:
 
    ```bash
    cp .env.example .env
    ```
 
-Open the `.env` file and replace the placeholder values with your actual configuration:
+   Open the `.env` file and update the following variables with your actual credentials:
 
    ```
-   SUPABASE_URL=your_actual_supabase_url
-   SUPABASE_KEY=your_actual_supabase_key
-   STRIPE_PUBLISHABLE_KEY=your_actual_stripe_key
+   SUPABASE_URL=your_supabase_project_url
+   SUPABASE_KEY=your_supabase_anon_key
+   STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
    ```
-
-Make sure not to commit your `.env` file to version control. It's already included in `.gitignore` for your safety.
-
-Note: The `.env` file contains sensitive information. Never share or commit this file to your repository.
 
 4. **Development Server**
 
@@ -72,6 +67,35 @@ Note: The `.env` file contains sensitive information. Never share or commit this
    ```bash
    npm run build
    ```
+
+## Authentication
+
+This boilerplate implements a unified authentication system that combines both passkey and magic link methods on a single login screen. This approach provides users with a seamless and flexible authentication experience.
+
+Key features of the authentication system:
+
+1. **Passkey Authentication**: 
+   - Allows users to sign up and sign in using passkeys.
+   - Provides a secure, passwordless authentication experience.
+   - Leverages the Web Authentication API for enhanced security.
+
+2. **Magic Link Authentication**:
+   - Enables users to sign up or sign in by receiving a secure link via email.
+   - Offers a convenient alternative for users who prefer email-based authentication.
+
+3. **Unified Interface**:
+   - Presents both authentication options on a single screen.
+   - Allows users to choose their preferred method at the point of login.
+
+To implement this authentication system:
+
+1. Configure Supabase Authentication in your project dashboard.
+2. Enable both Passkey and Magic Link authentication methods in the Supabase Auth settings.
+3. Create a unified login component in your Nuxt application.
+4. Use the Supabase Vue library to handle authentication logic.
+5. Implement proper error handling and user feedback for both authentication methods.
+
+For detailed implementation instructions and best practices, refer to the Supabase documentation on [Passkey authentication](https://supabase.com/docs/guides/auth/passwordless-login/auth-passkeys) and [Magic Link authentication](https://supabase.com/docs/guides/auth/passwordless-login/auth-magic-link).
 
 ## Project Structure
 
@@ -110,13 +134,21 @@ Note: The `.env` file contains sensitive information. Never share or commit this
 
 ## Best Practices
 
-- Utilize Tailwind CSS for styling components.
+- Utilize Tailwind CSS for styling components, including the authentication screen.
 - Leverage VueUse composables for common functionalities.
-- Use Pinia for state management across components.
+- Use Pinia for state management across components, including managing authentication state.
 - Implement Supabase for backend functionalities and user authentication.
 - Use Stripe for payment processing (ensure PCI compliance when handling payment information).
 - Follow Vue 3 Composition API best practices in your components and composables.
+- Implement proper error handling and user feedback for authentication processes.
+- Ensure the unified authentication UI is intuitive, accessible, and responsive.
+- Provide clear instructions for users on how to use both passkey and magic link options.
+- Implement appropriate security measures, such as rate limiting, to prevent abuse of the authentication system.
+- Regularly update dependencies and follow security best practices for authentication implementation.
 
+## Contributing
+
+[Include instructions for how others can contribute to your project]
 
 ## License
 
@@ -124,23 +156,11 @@ MIT License
 
 Copyright (c) 2024 Nuxt Boilerplate
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ---
